@@ -19,12 +19,43 @@
 </script>
 
 <template>
-  <div class="container mt-4">
-    <h1 class="mb-4">List of Files</h1>
-    <div class="row g-1">
-        <div class="col-md-6 col-lg-4" v-for="file in files" :key="file.id">
+  <div class="files-container">
+    <div class="files-grid">
+        <div class="file-card-wrapper" v-for="file in files" :key="file.id">
             <File :file="file" />
         </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.files-container {
+    padding: 2rem 1rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.files-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding: 0;
+}
+
+@media (max-width: 768px) {
+    .files-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .files-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.file-card-wrapper {
+    height: 100%;
+}
+</style>
