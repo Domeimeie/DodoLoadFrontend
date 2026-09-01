@@ -7,6 +7,7 @@
   const toggleMenu = () => {
     menuOpen.value = !menuOpen.value
   }
+
 </script>
 
 <template>
@@ -32,12 +33,13 @@
     <div class="layout">
       <aside class="sidebar" :class="{ open: menuOpen }">
         <nav class="menu">
-          <a href="#" class="menu-item">My Files</a>
+          <RouterLink to="/Login" class="menu-item">Login</RouterLink>
+          <RouterLink to="/MyFiles" class="menu-item">My Files</RouterLink>
         </nav>
       </aside>
 
       <main class="main-content">
-        <Files />
+        <RouterView />
       </main>
     </div>
   </div>
@@ -167,6 +169,14 @@
   background: #f0f0f0;
   border-left-color: #667eea;
   color: #667eea;
+}
+
+/* vue-router adds this class to the link matching the current route. */
+.menu-item.router-link-active {
+  background: #f0f0f0;
+  border-left-color: #667eea;
+  color: #667eea;
+  font-weight: 600;
 }
 
 .main-content {
