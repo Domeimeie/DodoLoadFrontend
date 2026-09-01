@@ -1,6 +1,7 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
     import axios from 'axios'
+    import Tags from './Tags.vue'
 
     const props = defineProps({
         file: Object
@@ -33,12 +34,13 @@
 <template>
     <div class="card" style="width: 18rem;">
         <img src="..." class="card-img-top" alt="...">
-        <div class="card-body">
+        <div class="card-body" style="padding-bottom: 0.5rem;">
             <h5 class="card-title">{{ file.filename }}</h5>
-            <p class="card-text">Size: {{ file.size }}<br>Upload Date: {{ file.uploaded_at }}</p>
+            <p class="card-text">Size: {{ file.size }}<br>Upload Date: {{ file.uploaded_at }}<br>ID: {{ file.id }}</p>
             <button @click="downloadFile" class="btn btn-primary" :disabled="loading">
                 {{ loading ? 'Downloading...' : 'Download' }}
             </button>
+            <Tags :tags="props.file.tags" />
         </div>
     </div>
 </template>

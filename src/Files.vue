@@ -21,8 +21,10 @@
 <template>
   <div class="container mt-4">
     <h1 class="mb-4">List of Files</h1>
-    <div class="row g-4">
-        <File v-for="file in files" :key="file.id" :file="file" />
+    <div class="row g-1">
+        <div class="col-md-6 col-lg-4" v-for="file in files" :key="file.id">
+            <File :file="file" />
+        </div>
     </div>
   </div>
 </template>
