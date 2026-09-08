@@ -2,10 +2,55 @@
     import { ref, computed } from 'vue'
     import axios from 'axios'
     import Tags from './Tags.vue'
+    import TagPicker from './TagPicker.vue'
+    import { api } from './main.js'
 
     const props = defineProps({
-        file: Object
+        file: Object,
+        // Every tag the user owns, loaded once by the parent.
+        allTags: { type: Array, default: () => [] },
     })
+
+    const emit = defineEmits(['changed', 'tag-created'])
+
+    const selectedIds = computed(() => (props.file.tags || []).map(tag => tag.id))
+
+    // Both tag endpoints take "tag_ids" as a form field, one entry per tag.
+    const tagIdsForm = (tagId) => {
+        const form = new FormData()
+        form.append('tag_ids', tagId)
+        return form
+    }
+
+    const addTag = async (tag) => {
+        try {
+            await api.post(`/files/${props.file.id}/tags`, tagIdsForm(tag.id))
+            emit('changed')
+        } catch (error) {
+            console.error("Adding tag failed:", error)
+        }
+    }
+
+    const removeTag = async (tag) => {
+        try {
+            // A DELETE body goes in the config's data field, not as an argument.
+            await api.delete(`/files/${props.file.id}/tags`, { data: tagIdsForm(tag.id) })
+            emit('changed')
+        } catch (error) {
+            console.error("Removing tag failed:", error)
+        }
+    }
+
+    const createTag = async (name) => {
+        try {
+            const response = await api.post("/tags/", { name })
+            // Lets the parent offer the new tag on every other card too.
+            emit('tag-created', response.data)
+            await addTag(response.data)
+        } catch (error) {
+            console.error("Creating tag failed:", error)
+        }
+    }
 
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyLmlkIjoxfQ.PowlOBKCLMaWykz1KlesbDOuDt-gFZhEyD__-kWFyxk";
     const loading = ref(false)
@@ -89,7 +134,14 @@
             <button @click="downloadFile" class="btn btn-primary" :disabled="loading">
                 {{ loading ? 'Downloading...' : 'Download' }}
             </button>
-            <Tags :tags="props.file.tags" />
+            <Tags :tags="props.file.tags" removable @remove="removeTag">
+                <TagPicker
+                    :all-tags="allTags"
+                    :selected-ids="selectedIds"
+                    @select="addTag"
+                    @create="createTag"
+                />
+            </Tags>
         </div>
     </div>
 </template>

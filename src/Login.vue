@@ -1,5 +1,9 @@
 <script setup>
     import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
+    import axios from "axios";
+
+    const router = useRouter()
 
     const email = ref('')
     const password = ref('')
@@ -11,8 +15,12 @@
         error.value = ''
         loading.value = true
         try {
-            // TODO: your auth request goes here.
-            // On success, store the token and redirect to /MyFiles.
+            const response = await axios.post("http://127.0.0.1:8000/auth/login", {
+            email: email.value,
+            password: password.value,
+            })
+            localStorage.setItem('token', response.data.access_token)
+            router.push('/MyFiles')
         } catch (e) {
             error.value = 'Login failed. Please check your credentials.'
         } finally {
@@ -36,7 +44,7 @@
                 <div class="form-floating mb-3">
                     <input
                         v-model="email"
-                        type="email"
+                        type="text"
                         id="loginEmail"
                         class="form-control"
                         placeholder="name@example.com"

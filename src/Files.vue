@@ -1,28 +1,46 @@
 <script setup>
     import { ref , onMounted} from 'vue'
     import File from './File.vue'
+    import FileUpload from './FileUpload.vue'
 
-    import axios from "axios";
-
-
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyLmlkIjoxfQ.PowlOBKCLMaWykz1KlesbDOuDt-gFZhEyD__-kWFyxk";
+    import { api } from './main.js'
 
     const files = ref([])
 
-    onMounted(async () => {
-    const response = await axios.get("http://127.0.0.1:8000/files/", {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-    files.value = response.data
+    const allTags = ref([])
+
+    const loadFiles = async () => {
+        const response = await api.get("/files/")
+        files.value = response.data
+    }
+
+    const loadTags = async () => {
+        const response = await api.get("/tags/")
+        allTags.value = response.data
+    }
+
+    const onTagCreated = (tag) => {
+        if (!allTags.value.some(t => t.id === tag.id)) allTags.value.push(tag)
+    }
+
+    onMounted(() => {
+        loadFiles()
+        loadTags()
     })
 
 </script>
 
 <template>
   <div class="files-container">
+    <FileUpload :all-tags="allTags" @uploaded="loadFiles" @tag-created="onTagCreated" />
     <div class="files-grid">
         <div class="file-card-wrapper" v-for="file in files" :key="file.id">
-            <File :file="file" />
+            <File
+                :file="file"
+                :all-tags="allTags"
+                @changed="loadFiles"
+                @tag-created="onTagCreated"
+            />
         </div>
     </div>
   </div>
@@ -57,5 +75,14 @@
 
 .file-card-wrapper {
     height: 100%;
+    position: relative;
+}
+
+/* Cards are siblings, so a card's open tag popover would be painted over by
+   the cards after it. Raise the active card above the rest of the grid;
+   focus-within covers the popover's search field, hover the mouse. */
+.file-card-wrapper:hover,
+.file-card-wrapper:focus-within {
+    z-index: 10;
 }
 </style>
